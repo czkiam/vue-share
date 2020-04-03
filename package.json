@@ -6,7 +6,7 @@
   "scripts": {
     "server": "nodemon src/server.js",
     "server:ci": "node src/server.js",
-    "client": "cd client && npm start",
+    "client": "cd src/client && yarn serve",
     "dev": "concurrently --names \"server,client\" \"npm run server --silent\" \"npm run client --silent\""
   },
   "keywords": [],
