@@ -1,12 +1,12 @@
 <template>
   <v-container text-xs-center v-if="getPosts">
-    <v-flex xs12>
+    <!-- <v-flex xs12>
       <v-carousel v-bind="{ 'cycle': true }" interval="3000">
         <v-carousel-item v-for="post in getPosts" :key="post._id" :src="post.imageUrl">
           <h1 id="carousel__title">{{post.title}}</h1>
         </v-carousel-item>
       </v-carousel>
-    </v-flex>
+    </v-flex> -->
   </v-container>
 </template>
 
@@ -27,7 +27,13 @@ export default {
             likes
           }
         }
-      `
+      `,
+      result (args){
+        console.log(args)
+      },
+      error (err){
+        console.dir(err)
+      }
     }
   }
 };
