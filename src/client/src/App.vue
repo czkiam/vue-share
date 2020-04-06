@@ -17,9 +17,15 @@
           <v-list-tile-action>
             <v-icon>{{item.icon}}</v-icon>
           </v-list-tile-action>
-          <v-list-tile-content>
-            {{item.title}}
-          </v-list-tile-content>
+          <v-list-tile-content>{{item.title}}</v-list-tile-content>
+        </v-list-tile>
+
+        <!-- Signout Button -->
+        <v-list-tile v-if="user" @click="handleSignoutUser">
+          <v-list-tile-action>
+            <v-icon>exit_to_app</v-icon>
+          </v-list-tile-action>
+          <v-list-tile-content>Signout</v-list-tile-content>
         </v-list-tile>
       </v-list>
     </v-navigation-drawer>
@@ -29,15 +35,20 @@
       <!-- App Title -->
       <v-toolbar-side-icon @click="toggleSideNav"></v-toolbar-side-icon>
       <v-toolbar-title class="hidden-xs-only">
-        <router-link to="/" tag="span" style="cursor: pointer">
-          VueShare
-        </router-link>
+        <router-link to="/" tag="span" style="cursor: pointer">VueShare</router-link>
       </v-toolbar-title>
 
       <v-spacer></v-spacer>
 
       <!-- Search Input -->
-      <v-text-field flex prepend-icon="search" placeholder="Search posts" color="accent" single-line hide-details></v-text-field>
+      <v-text-field
+        flex
+        prepend-icon="search"
+        placeholder="Search posts"
+        color="accent"
+        single-line
+        hide-details
+      ></v-text-field>
 
       <v-spacer></v-spacer>
 
@@ -47,6 +58,20 @@
           <v-icon class="hidden-sm-only" left>{{item.icon}}</v-icon>
           {{item.title}}
         </v-btn>
+
+        <!-- Profile Button -->
+        <v-btn flat to="/profile" v-if="user">
+          <v-icon class="hidden-sm-only" left>account_box</v-icon>
+          <v-badge right color="blue darken-2">
+            <!-- <span slot="badge"></span> -->
+            Profile
+          </v-badge>
+        </v-btn>
+
+        <!-- Signout Button -->
+        <v-btn flat v-if="user" @click="handleSignoutUser">
+          <v-icon class="hidden-sm-only" left>exit_to_app</v-icon>Signout
+        </v-btn>
       </v-toolbar-items>
     </v-toolbar>
 
@@ -54,7 +79,7 @@
     <main>
       <v-container class="mt-4">
         <transition name="fade">
-          <router-view/>
+          <router-view />
         </transition>
       </v-container>
     </main>
@@ -62,6 +87,7 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 export default {
   name: "App",
   data() {
@@ -70,24 +96,42 @@ export default {
     };
   },
   computed: {
+    ...mapGetters(["user"]),
     horizontalNavItems() {
-      return [
+      let items = [
         { icon: "chat", title: "Posts", link: "/posts" },
         { icon: "lock_open", title: "Sign In", link: "/signin" },
         { icon: "create", title: "Sign Up", link: "/signup" }
       ];
+
+      if (this.user) {
+        items = [{ icon: "chat", title: "Posts", link: "/posts" }];
+      }
+      return items;
     },
     sideNavItems() {
-      return [
+      let items = [
         { icon: "chat", title: "Posts", link: "/posts" },
         { icon: "lock_open", title: "Sign In", link: "/signin" },
         { icon: "create", title: "Sign Up", link: "/signup" }
       ];
+
+      if (this.user) {
+        items = [
+          { icon: "chat", title: "Posts", link: "/posts" },
+          { icon: "star", title: "Create Post", link: "/post/add" },
+          { icon: "account_box", title: "Profile", link: "/profile" }
+        ];
+      }
+      return items;
     }
   },
   methods: {
     toggleSideNav() {
       this.sideNav = !this.sideNav;
+    },
+    handleSignoutUser() {
+      this.$store.dispatch("signoutUser");
     }
   }
 };
