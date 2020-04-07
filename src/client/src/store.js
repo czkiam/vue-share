@@ -4,12 +4,18 @@ import router from "./router";
 
 import { defaultClient as apolloClient } from "./main";
 
-import { GET_POSTS, SIGNIN_USER, GET_CURRENT_USER } from "./queries";
+import {
+  GET_POSTS,
+  SIGNIN_USER,
+  GET_CURRENT_USER,
+  SIGNUP_USER
+} from "./queries";
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
+    authError: null,
     error: null,
     user: null,
     posts: [],
@@ -33,6 +39,9 @@ export default new Vuex.Store({
     },
     claerError: state => {
       state.error = null;
+    },
+    setAuthError: (state, payload) => {
+      state.authError = payload;
     }
   },
   actions: {
@@ -90,6 +99,26 @@ export default new Vuex.Store({
           console.log(err);
         });
     },
+    signupUser: ({ commit }, payload) => {
+      commit("clearError");
+      commit("setLoading", true);
+      apolloClient
+        .mutate({
+          mutation: SIGNUP_USER,
+          variables: payload
+        })
+        .then(({ data }) => {
+          commit("setLoading", false);
+          localStorage.setItem("token", data.signupUser.token);
+          // to make sure created method is run in main.js (we run getCurrentUser), reload the page
+          router.go();
+        })
+        .catch(err => {
+          commit("setLoading", false);
+          commit("setError", err);
+          console.error(err);
+        });
+    },
     signoutUser: async ({ commit }) => {
       //clear user in state
       commit("claerUser");
@@ -105,6 +134,7 @@ export default new Vuex.Store({
     posts: state => state.posts,
     loading: state => state.loading,
     user: state => state.user,
-    error: state => state.error
+    error: state => state.error,
+    authError: state => state.authError
   }
 });
