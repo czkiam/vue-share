@@ -10,6 +10,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
+    error: null,
     user: null,
     posts: [],
     loading: false
@@ -26,6 +27,12 @@ export default new Vuex.Store({
     },
     claerUser: state => {
       state.user = null;
+    },
+    setError: (state, payload) => {
+      state.error = payload;
+    },
+    claerError: state => {
+      state.error = null;
     }
   },
   actions: {
@@ -42,6 +49,7 @@ export default new Vuex.Store({
         })
         .catch(err => {
           commit("setLoading", false);
+          commit("setError", err);
           console.error(err);
         });
     },
@@ -57,10 +65,13 @@ export default new Vuex.Store({
         })
         .catch(err => {
           commit("setLoading", false);
+          commit("setError", err);
           console.error(err);
         });
     },
     signinUser: ({ commit }, payload) => {
+      commit("claerError");
+      commit("setLoading", true);
       localStorage.setItem("token", "");
       apolloClient
         .mutate({
@@ -68,11 +79,14 @@ export default new Vuex.Store({
           variables: payload
         })
         .then(({ data }) => {
+          commit("setLoading", false);
           localStorage.setItem("token", data.signinUser.token);
           // to make sure created method is run in main.js (we run getCurrentUser) reload the page
           router.go();
         })
         .catch(err => {
+          commit("setLoading", false);
+          commit("setError", err);
           console.log(err);
         });
     },
@@ -84,12 +98,13 @@ export default new Vuex.Store({
       //end session
       await apolloClient.resetStore();
       //redirect home - kick user out of private pages
-      router.push("/");
+      router.push("/signin");
     }
   },
   getters: {
     posts: state => state.posts,
     loading: state => state.loading,
-    user: state => state.user
+    user: state => state.user,
+    error: state => state.error
   }
 });

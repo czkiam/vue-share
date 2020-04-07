@@ -7,7 +7,9 @@ import store from "./store";
 
 import ApolloClient from "apollo-boost";
 import VueApollo from "vue-apollo";
+import FormAlert from "./components/Shared/FormAlert";
 
+Vue.component("form-alert", FormAlert);
 Vue.use(VueApollo);
 
 // Setup ApolloClient
