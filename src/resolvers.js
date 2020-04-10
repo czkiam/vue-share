@@ -12,24 +12,50 @@ const resolvers = {
       if (!currentUser) return null;
 
       const user = await User.findOne({
-        username: currentUser.username
+        username: currentUser.username,
       }).populate({
         path: "favorites",
-        model: "Post"
+        model: "Post",
       });
 
       return user;
     },
     getPosts: async (_, args, { Post }) => {
-      const posts = await Post.find({})
-        .sort({ createdDate: "desc" })
-        .populate({
-          path: "createdBy",
-          model: "User"
-        });
+      const posts = await Post.find({}).sort({ createdDate: "desc" }).populate({
+        path: "createdBy",
+        model: "User",
+      });
 
       return posts;
-    }
+    },
+
+    infiniteScrollPosts: async (_, { pageNum, pageSize }, { Post }) => {
+      let posts;
+      if (pageNum === 1) {
+        posts = await Post.find({})
+          .sort({ createdDate: "desc" })
+          .populate({
+            path: "createdBy",
+            model: "User",
+          })
+          .limit(pageSize);
+      } else {
+        //if page number is greater than one, figure out how many documents to skip
+        const skips = pageSize * (pageNum - 1);
+        posts = await Post.find({})
+          .sort({ createdDate: "desc" })
+          .populate({
+            path: "createdBy",
+            model: "User",
+          })
+          .skip(skips)
+          .limit(pageSize);
+      }
+
+      const totalDocs = await Post.countDocuments();
+      const hasMore = totalDocs > pageSize * pageNum;
+      return { posts, hasMore };
+    },
   },
 
   Mutation: {
@@ -43,7 +69,7 @@ const resolvers = {
         imageUrl,
         categories,
         description,
-        createdBy: creatorId
+        createdBy: creatorId,
       }).save();
 
       return newPost;
@@ -72,12 +98,12 @@ const resolvers = {
       const newUser = await new User({
         username,
         email,
-        password
+        password,
       }).save();
 
       return { token: createToken(newUser, process.env.SECRET, "1hr") };
-    }
-  }
+    },
+  },
 };
 
 module.exports = resolvers;
