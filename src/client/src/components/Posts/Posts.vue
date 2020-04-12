@@ -1,11 +1,10 @@
 <template>
   <v-container fluid grid-list-xl>
-
     <!-- Post Cards -->
     <v-layout row wrap v-if="infiniteScrollPosts">
       <v-flex xs12 sm6 v-for="post in infiniteScrollPosts.posts" :key="post._id">
         <v-card hover>
-          <v-card-media :src="post.imageUrl" height="30vh" lazy></v-card-media>
+          <v-card-media @click.native="goToPost(post._id)" :src="post.imageUrl" height="30vh" lazy></v-card-media>
 
           <v-card-actions>
             <v-card-title primary>
@@ -25,7 +24,7 @@
             <v-card-text v-show="showPostCreator" class="grey lighten-4">
               <v-list-tile avatar>
                 <v-list-tile-avatar>
-                  <img :src="post.createdBy.avatar">
+                  <img :src="post.createdBy.avatar" />
                 </v-list-tile-avatar>
 
                 <v-list-tile-content>
@@ -41,7 +40,6 @@
               </v-list-tile>
             </v-card-text>
           </v-slide-y-transition>
-
         </v-card>
       </v-flex>
     </v-layout>
@@ -54,7 +52,6 @@
         </v-layout>
       </v-flex>
     </v-layout>
-
   </v-container>
 </template>
 
@@ -109,6 +106,9 @@ export default {
           };
         }
       });
+    },
+    goToPost(postId) {
+      this.$router.push(`/posts/${postId}`);
     }
   }
 };

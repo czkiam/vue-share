@@ -26,7 +26,7 @@ const PostSchema = new mongoose.Schema({
   },
   messages: [
     {
-      messagesBody: { type: String, required: true },
+      messageBody: { type: String, required: true },
       messageDate: { type: Date, default: Date.now },
       messageUser: {
         type: mongoose.Schema.Types.ObjectId,
