@@ -46,7 +46,12 @@
       <!-- Message Input -->
       <v-layout class="mb-3" v-if="user">
         <v-flex xs12>
-          <v-form v-model="isFormValid" ref="form" @submit.prevent="handleAddPostMessage">
+          <v-form
+            v-model="isFormValid"
+            lazy-validation
+            ref="form"
+            @submit.prevent="handleAddPostMessage"
+          >
             <v-layout row>
               <v-flex xs12>
                 <v-text-field
@@ -54,9 +59,9 @@
                   v-model="messageBody"
                   clearable
                   :append-outer-icon="messageBody && 'send'"
-                  @click:append-outer="handleAddPostMessage"
                   label="Add Message"
                   type="text"
+                  @click:append-outer="handleAddPostMessage"
                   prepend-icon="email"
                   required
                 ></v-text-field>
@@ -155,36 +160,35 @@ export default {
       }
     },
     handleAddPostMessage() {
-      const variables = {
-        messageBody: this.messageBody,
-        userId: this.user._id,
-        postId: this.postId
-      };
-
-      this.$apollo
-        .mutate({
-          mutation: ADD_POST_MESSAGE,
-          variables,
-          update: (cache, { data: { addPostMessage } }) => {
-            const data = cache.readQuery({
-              query: GET_POST,
-              variables: { postId: this.postId }
-            });
-            data.getPost.messages.unshift(addPostMessage);
-            cache.writeQuery({
-              query: GET_POST,
-              variables: { postId: this.postId },
-              data
-            });
-          }
-        })
-        .then(({ data }) => {
-          this.$refs.form.reset();
-          console.log(data.addPostMessage);
-        })
-        .catch(err => {
-          console.error(err);
-        });
+      if (this.$refs.form.validate()) {
+        const variables = {
+          messageBody: this.messageBody,
+          userId: this.user._id,
+          postId: this.postId
+        };
+        this.$apollo
+          .mutate({
+            mutation: ADD_POST_MESSAGE,
+            variables,
+            update: (cache, { data: { addPostMessage } }) => {
+              const data = cache.readQuery({
+                query: GET_POST,
+                variables: { postId: this.postId }
+              });
+              data.getPost.messages.unshift(addPostMessage);
+              cache.writeQuery({
+                query: GET_POST,
+                variables: { postId: this.postId },
+                data
+              });
+            }
+          })
+          .then(({ data }) => {
+            this.$refs.form.reset();
+            console.log(data.addPostMessage);
+          })
+          .catch(err => console.error(err));
+      }
     },
     handleToggleLike() {
       if (this.postLiked) {
@@ -198,7 +202,6 @@ export default {
         postId: this.postId,
         username: this.user.username
       };
-
       this.$apollo
         .mutate({
           mutation: UNLIKE_POST,
@@ -208,10 +211,7 @@ export default {
               query: GET_POST,
               variables: { postId: this.postId }
             });
-
-            console.log(data);
-            data.getPost.Likes -= 1;
-
+            data.getPost.likes -= 1;
             cache.writeQuery({
               query: GET_POST,
               variables: { postId: this.postId },
@@ -226,16 +226,13 @@ export default {
           };
           this.$store.commit("setUser", updatedUser);
         })
-        .catch(err => {
-          console.error(err);
-        });
+        .catch(err => console.error(err));
     },
     handleLikePost() {
       const variables = {
         postId: this.postId,
         username: this.user.username
       };
-
       this.$apollo
         .mutate({
           mutation: LIKE_POST,
@@ -245,9 +242,7 @@ export default {
               query: GET_POST,
               variables: { postId: this.postId }
             });
-            console.log(data);
-            data.getPost.Likes += 1;
-
+            data.getPost.likes += 1;
             cache.writeQuery({
               query: GET_POST,
               variables: { postId: this.postId },
@@ -262,9 +257,7 @@ export default {
           };
           this.$store.commit("setUser", updatedUser);
         })
-        .catch(err => {
-          console.error(err);
-        });
+        .catch(err => console.error(err));
     },
     goToPreviousPage() {
       this.$router.go(-1);
