@@ -46,7 +46,7 @@
       <!-- Message Input -->
       <v-layout class="mb-3" v-if="user">
         <v-flex xs12>
-          <v-form v-model="isFormValid" @submit.prevent="handleAddPostMessage">
+          <v-form v-model="isFormValid"  ref="form" @submit.prevent="handleAddPostMessage">
             <v-layout row>
               <v-flex xs12>
                 <v-text-field
@@ -91,7 +91,7 @@
                 </v-list-tile-content>
 
                 <v-list-tile-action class="hidden-xs-only">
-                  <v-icon color="grey">chat_bubble</v-icon>
+                  <v-icon :color="checkIfOwnMessage(message) ? 'accent' : 'grey'">chat_bubble</v-icon>
                 </v-list-tile-action>
               </v-list-tile>
             </template>
@@ -174,6 +174,9 @@ export default {
       if (window.innerWidth > 500) {
         this.dialog = !this.dialog;
       }
+    },
+    checkIfOwnMessage(message) {
+      return this.user && this.user._id === message.messageUser._id;
     }
   }
 };
