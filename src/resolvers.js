@@ -17,7 +17,7 @@ const resolvers = {
         path: "favorites",
         model: "Post",
       });
-
+      
       return user;
     },
     getPosts: async (_, args, { Post }) => {
@@ -107,6 +107,49 @@ const resolvers = {
       });
 
       return post.messages[0];
+    },
+    likePost: async (_, { postId, username }, { Post, User }) => {
+      //Find Post, add 1 to its like value
+      const post = await Post.findOneAndUpdate(
+        { _id: postId },
+        { $inc: { likes: 1 } },
+        { new: true }
+      );
+
+      // Find User, add id of post to its favorites array (which will be populated as Posts)
+      const user = await User.findOneAndUpdate(
+        { username },
+        { $addToSet: { favorites: postId } },
+        { new: true }
+      ).populate({
+        path: "favorites",
+        model: "Post",
+      });
+
+      // Return only likes from 'post' and favorites from 'user'
+      return  { likes: post.likes, favorites: user.favorites };
+      
+    },
+    unlikePost: async (_, { postId, username }, { Post, User }) => {
+      //Find Post, add 1 to its like value
+      const post = await Post.findOneAndUpdate(
+        { _id: postId },
+        { $inc: { likes: -1 } },
+        { new: true }
+      );
+
+      // Find User, add id of post to its favorites array (which will be populated as Posts)
+      const user = await User.findOneAndUpdate(
+        { username },
+        { $pull: { favorites: postId } },
+        { new: true }
+      ).populate({
+        path: "favorites",
+        model: "Post",
+      });
+
+      // Return only likes from 'post' and favorites from 'user'
+      return { likes: post.likes, favorites: user.favorites };
     },
     signinUser: async (_, { username, password }, { User }) => {
       const user = await User.findOne({ username });

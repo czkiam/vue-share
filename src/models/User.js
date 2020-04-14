@@ -6,37 +6,39 @@ const UserSchema = new mongoose.Schema({
   username: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
   },
   email: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   password: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   avatar: {
-    type: String
+    type: String,
   },
   joinDate: { type: Date, default: Date.now },
 
-  favorites: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Post"
-  }
+  favorites: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Post",
+    },
+  ],
 });
 
 //Create and add avatar to user
-UserSchema.pre("save", function(next) {
+UserSchema.pre("save", function (next) {
   this.avatar = `http://gravatar.com/avatar/${md5(this.username)}?d=identicon`;
   next();
 });
 
 //hash password so it cant be seen
-UserSchema.pre("save", function(next) {
+UserSchema.pre("save", function (next) {
   if (!this.isModified("password")) {
     return next();
   }

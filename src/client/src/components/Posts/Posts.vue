@@ -1,5 +1,6 @@
 <template>
   <v-container fluid grid-list-xl>
+
     <!-- Post Cards -->
     <v-layout row wrap v-if="infiniteScrollPosts">
       <v-flex xs12 sm6 v-for="post in infiniteScrollPosts.posts" :key="post._id">
@@ -24,12 +25,12 @@
             <v-card-text v-show="showPostCreator" class="grey lighten-4">
               <v-list-tile avatar>
                 <v-list-tile-avatar>
-                  <img :src="post.createdBy.avatar" />
+                  <img :src="post.createdBy.avatar">
                 </v-list-tile-avatar>
 
                 <v-list-tile-content>
                   <v-list-tile-title class="text--primary">{{post.createdBy.username}}</v-list-tile-title>
-                  <v-list-tile-subtitle class="font-weight-thin">Added {{post.createdDate}}</v-list-tile-subtitle>
+                  <v-list-tile-sub-title class="font-weight-thin">Added {{post.createdDate}}</v-list-tile-sub-title>
                 </v-list-tile-content>
 
                 <v-list-tile-action>
@@ -40,6 +41,7 @@
               </v-list-tile>
             </v-card-text>
           </v-slide-y-transition>
+
         </v-card>
       </v-flex>
     </v-layout>
@@ -52,11 +54,13 @@
         </v-layout>
       </v-flex>
     </v-layout>
+
   </v-container>
 </template>
 
 <script>
 import { INFINITE_SCROLL_POSTS } from "../../queries";
+
 const pageSize = 2;
 
 export default {
@@ -81,10 +85,9 @@ export default {
     showMorePosts() {
       this.pageNum += 1;
       // fetch more data and transform original result
-
       this.$apollo.queries.infiniteScrollPosts.fetchMore({
         variables: {
-          //pageNum incremented by 1
+          // pageNum incremented by 1
           pageNum: this.pageNum,
           pageSize
         },
