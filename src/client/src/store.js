@@ -7,22 +7,29 @@ import { defaultClient as apolloClient } from "./main";
 import {
   GET_CURRENT_USER,
   GET_POSTS,
+  SEARCH_POSTS,
   ADD_POST,
   SIGNIN_USER,
-  SIGNUP_USER
+  SIGNUP_USER,
 } from "./queries";
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
+    searchResults: [],
     posts: [],
     user: null,
     loading: false,
     error: null,
-    authError: null
+    authError: null,
   },
   mutations: {
+    setSearchResults: (state, payload) => {
+      if (payload !== null) {
+        state.searchResults = payload;
+      } else state.searchResults = [];
+    },
     setPosts: (state, payload) => {
       state.posts = payload;
     },
@@ -38,15 +45,16 @@ export default new Vuex.Store({
     setAuthError: (state, payload) => {
       state.authError = payload;
     },
-    clearUser: state => (state.user = null),
-    clearError: state => (state.error = null)
+    clearUser: (state) => (state.user = null),
+    clearSearchResults: (state) => (state.searchResults = []),
+    clearError: (state) => (state.error = null),
   },
   actions: {
     getCurrentUser: ({ commit }) => {
       commit("setLoading", true);
       apolloClient
         .query({
-          query: GET_CURRENT_USER
+          query: GET_CURRENT_USER,
         })
         .then(({ data }) => {
           commit("setLoading", false);
@@ -54,7 +62,7 @@ export default new Vuex.Store({
           commit("setUser", data.getCurrentUser);
           console.log(data.getCurrentUser);
         })
-        .catch(err => {
+        .catch((err) => {
           commit("setLoading", false);
           commit("setError", err);
           console.error(err);
@@ -64,13 +72,31 @@ export default new Vuex.Store({
       commit("setLoading", true);
       apolloClient
         .query({
-          query: GET_POSTS
+          query: GET_POSTS,
         })
         .then(({ data }) => {
           commit("setPosts", data.getPosts);
           commit("setLoading", false);
         })
-        .catch(err => {
+        .catch((err) => {
+          commit("setLoading", false);
+          commit("setError", err);
+          console.error(err);
+        });
+    },
+    searchPosts: ({ commit }, payload) => {
+      console.log(payload);
+      commit("setLoading", true);
+      apolloClient
+        .query({
+          query: SEARCH_POSTS,
+          variables: payload,
+        })
+        .then(({ data }) => {
+          commit("setSearchResults", data.searchPosts);
+          commit("setLoading", false);
+        })
+        .catch((err) => {
           commit("setLoading", false);
           commit("setError", err);
           console.error(err);
@@ -90,7 +116,7 @@ export default new Vuex.Store({
             console.log(data);
             cache.writeQuery({
               query: GET_POSTS,
-              data
+              data,
             });
           },
           // optimistic response ensures data is added immediately as we specified for the update function
@@ -99,14 +125,14 @@ export default new Vuex.Store({
             addPost: {
               __typename: "Post",
               _id: -1,
-              ...payload
-            }
-          }
+              ...payload,
+            },
+          },
         })
         .then(({ data }) => {
           console.log(data.addPost);
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(err);
         });
     },
@@ -117,7 +143,7 @@ export default new Vuex.Store({
       apolloClient
         .mutate({
           mutation: SIGNIN_USER,
-          variables: payload
+          variables: payload,
         })
         .then(({ data }) => {
           commit("setLoading", false);
@@ -125,7 +151,7 @@ export default new Vuex.Store({
           // to make sure created method is run in main.js (we run getCurrentUser), reload the page
           router.go();
         })
-        .catch(err => {
+        .catch((err) => {
           commit("setLoading", false);
           commit("setError", err);
           console.error(err);
@@ -137,7 +163,7 @@ export default new Vuex.Store({
       apolloClient
         .mutate({
           mutation: SIGNUP_USER,
-          variables: payload
+          variables: payload,
         })
         .then(({ data }) => {
           commit("setLoading", false);
@@ -145,29 +171,30 @@ export default new Vuex.Store({
           // to make sure created method is run in main.js (we run getCurrentUser), reload the page
           router.go();
         })
-        .catch(err => {
+        .catch((err) => {
           commit("setLoading", false);
           commit("setError", err);
           console.error(err);
         });
     },
     signoutUser: async ({ commit }) => {
-      //clear user in state
+      // clear user in state
       commit("clearUser");
-      //remove token in localstorage
+      // remove token in localStorage
       localStorage.setItem("token", "");
-      //end session
+      // end session
       await apolloClient.resetStore();
-      //redirect home - kick user out of private pages
+      // redirect home - kick users out of private pages (i.e. profile)
       router.push("/signin");
-    }
+    },
   },
   getters: {
-    posts: state => state.posts,
-    user: state => state.user,
-    userFavorites: state => state.user && state.user.favorites,
-    loading: state => state.loading,
-    error: state => state.error,
-    authError: state => state.authError
-  }
+    searchResults: (state) => state.searchResults,
+    posts: (state) => state.posts,
+    user: (state) => state.user,
+    userFavorites: (state) => state.user && state.user.favorites,
+    loading: (state) => state.loading,
+    error: (state) => state.error,
+    authError: (state) => state.authError,
+  },
 });

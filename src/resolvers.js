@@ -17,7 +17,7 @@ const resolvers = {
         path: "favorites",
         model: "Post",
       });
-      
+
       return user;
     },
     getPosts: async (_, args, { Post }) => {
@@ -67,6 +67,23 @@ const resolvers = {
       const totalDocs = await Post.countDocuments();
       const hasMore = totalDocs > pageSize * pageNum;
       return { posts, hasMore };
+    },
+    searchPosts: async (_, { searchTerm }, { Post }) => {
+      if (searchTerm) {
+        const searchResults = await Post.find(
+          // Perform text search for search value of 'searchTerm'
+          { $text: { $search: searchTerm } },
+          // Assign 'searchTerm' a text score to provide best match
+          { score: { $meta: "textScore" } }
+          // Sort results according to that textScore (as well as by likes in descending order)
+        )
+          .sort({
+            score: { $meta: "textScore" },
+            likes: "desc",
+          })
+          .limit(5);
+        return searchResults;
+      }
     },
   },
 
@@ -127,8 +144,7 @@ const resolvers = {
       });
 
       // Return only likes from 'post' and favorites from 'user'
-      return  { likes: post.likes, favorites: user.favorites };
-      
+      return { likes: post.likes, favorites: user.favorites };
     },
     unlikePost: async (_, { postId, username }, { Post, User }) => {
       //Find Post, add 1 to its like value

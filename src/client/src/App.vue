@@ -42,6 +42,8 @@
 
       <!-- Search Input -->
       <v-text-field
+        v-model="searchTerm"
+        @input="handleSearchPosts"
         flex
         prepend-icon="search"
         placeholder="Search posts"
@@ -49,6 +51,29 @@
         single-line
         hide-details
       ></v-text-field>
+
+      <!-- Search Results Card -->
+      <v-card dark v-if="searchResults.length" id="search__card">
+        <v-list>
+          <v-list-tile
+            v-for="result in searchResults"
+            :key="result._id"
+            @click="goToSearchResult(result._id)"
+          >
+            <v-list-tile-title>
+              {{result.title}} -
+              <span
+                class="font-weight-thin"
+              >{{formatDescription(result.description)}}</span>
+            </v-list-tile-title>
+
+            <!-- Show Icon if Result Favorited by User -->
+            <v-list-tile-action v-if="checkIfUserFavorite(result._id)">
+              <v-icon>favorite</v-icon>
+            </v-list-tile-action>
+          </v-list-tile>
+        </v-list>
+      </v-card>
 
       <v-spacer></v-spacer>
 
@@ -116,7 +141,8 @@ export default {
       sideNav: false,
       authSnackbar: false,
       authErrorSnackbar: false,
-      badgeAnimated: false
+      badgeAnimated: false,
+      searchTerm: ""
     };
   },
   watch: {
@@ -143,7 +169,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(["authError", "user", "userFavorites"]),
+    ...mapGetters(["searchResults", "authError", "user", "userFavorites"]),
     horizontalNavItems() {
       let items = [
         { icon: "chat", title: "Posts", link: "/posts" },
@@ -174,11 +200,30 @@ export default {
     }
   },
   methods: {
+    handleSearchPosts() {
+      this.$store.dispatch("searchPosts", { searchTerm: this.searchTerm });
+    },
     toggleSideNav() {
       this.sideNav = !this.sideNav;
     },
     handleSignoutUser() {
       this.$store.dispatch("signoutUser");
+    },
+    goToSearchResult(resultId) {
+      this.searchTerm = ""
+      this.$router.push(`/posts/${resultId}`)
+      this.$store.commit("clearSearchResults")
+    },
+    formatDescription(description) {
+      return description.length > 30
+        ? `${description.substr(0, 30)}`
+        : description;
+    },
+    checkIfUserFavorite(resultId) {
+      return (
+        this.userFavorites &&
+        this.userFavorites.some(fav => fav._id === resultId)
+      );
     }
   }
 };
