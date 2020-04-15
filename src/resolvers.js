@@ -41,6 +41,13 @@ const resolvers = {
 
       return post;
     },
+    getUserPosts: async (_, { userId }, { Post }) => {
+      const posts = await Post.find({
+        createdBy: userId,
+      });
+
+      return posts;
+    },
     infiniteScrollPosts: async (_, { pageNum, pageSize }, { Post }) => {
       let posts;
       if (pageNum === 1) {
@@ -102,6 +109,28 @@ const resolvers = {
       }).save();
 
       return newPost;
+    },
+    updateUserPost: async (
+      _,
+      { postId, userId, title, imageUrl, categories, description },
+      { Post }
+    ) => {
+      const updatePost = await Post.findOneAndUpdate(
+        {
+          _id: postId,
+          createdBy: userId,
+        },
+        {
+          $set: { title, imageUrl, categories, description },
+        },
+        { new: true }
+      );
+
+      return updatePost;
+    },
+    deleteUserPost: async (_, { postId }, { Post }) => {
+      const deletedPost = Post.findOneAndRemove({ _id: postId });
+      return deletedPost;
     },
     addPostMessage: async (_, { messageBody, userId, postId }, { Post }) => {
       const newMessage = {

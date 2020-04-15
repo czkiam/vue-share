@@ -210,9 +210,9 @@ export default {
       this.$store.dispatch("signoutUser");
     },
     goToSearchResult(resultId) {
-      this.searchTerm = ""
-      this.$router.push(`/posts/${resultId}`)
-      this.$store.commit("clearSearchResults")
+      this.searchTerm = "";
+      this.$router.push(`/posts/${resultId}`);
+      this.$store.commit("clearSearchResults");
     },
     formatDescription(description) {
       return description.length > 30
@@ -230,6 +230,16 @@ export default {
 </script>
 
 <style>
+h1 {
+  font-weight: 400;
+  font-size: 2.5rem;
+}
+
+h1 {
+  font-weight: 400;
+  font-size: 2.5rem;
+}
+
 .fade-enter-active,
 .fade-leave-active {
   transition-property: opacity;
