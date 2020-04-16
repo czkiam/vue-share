@@ -148,7 +148,7 @@ export default {
   },
   methods: {
     getTimeFromNow(time) {
-      return moment(new Date(time)).fromNow();
+      return moment(new Date(Number(time))).fromNow();
     },
     checkIfPostLiked(postId) {
       // check if user favorites includes post with id of 'postId'

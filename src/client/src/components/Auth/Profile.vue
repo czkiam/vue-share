@@ -204,7 +204,7 @@ export default {
       this.$router.push(`/posts/${id}`);
     },
     formatJoinDate(date) {
-      return moment(new Date(date)).format("ll");
+      return moment(new Date(Number(date))).format("ll");
     },
     handleGetUserPosts() {
       this.$store.dispatch("getUserPosts", { userId: this.user._id });

@@ -88,7 +88,7 @@ export default {
   },
   methods: {
     formatCreatedDate(date) {
-      return moment(new Date(date)).format("ll");
+      return moment(new Date(Number(date))).format("ll");
     },
     showMorePosts() {
       this.pageNum += 1;
