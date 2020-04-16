@@ -14,16 +14,16 @@ const Post = require("./models/Post");
 mongoose
   .connect(process.env.MONGO_URI, {
     useUnifiedTopology: true,
-    useNewUrlParser: true
+    useNewUrlParser: true,
   })
   .then(() => {
     console.log("Mongo DB Connected");
   })
-  .catch(err => {
+  .catch((err) => {
     console.error(err);
   });
 
-const getUser = async token => {
+const getUser = async (token) => {
   if (token) {
     try {
       let user = await jwt.verify(token, process.env.SECRET);
@@ -41,17 +41,17 @@ const getUser = async token => {
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  formatError: error => ({
+  formatError: (error) => ({
     name: error.name,
-    message: error.message.replace("Context creation failed:", "")
+    message: error.message.replace("Context creation failed:", ""),
   }),
   context: async ({ req }) => {
     const token = req.headers["authorization"];
     return { User, Post, currentUser: await getUser(token) };
-  }
+  },
 });
 
 //start server and listen to port 4000 (default graphql port)
-server.listen().then(({ url }) => {
+server.listen({ port: process.env.PORT || 4000 }).then(({ url }) => {
   console.log(`Server listening ready at ${url}`);
 });
