@@ -13,7 +13,7 @@
     <!-- explore poasts button -->
     <v-layout class="mt-2 mb-3" row wrap v-if="!loading">
       <v-flex xs12>
-        <v-btn class="secondary" to="/post" large dark>Explore Posts</v-btn>
+        <v-btn class="secondary" to="/posts" large dark>Explore Posts</v-btn>
       </v-flex>
     </v-layout>
 
