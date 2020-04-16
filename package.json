@@ -4,10 +4,10 @@
   "description": "Starter for Full-Stack Vue-GraphQL-Apollo Projects",
   "main": "src/server.js",
   "scripts": {
-    "start": "nodemon server.js",
+    "start": "node server.js",
     "server": "nodemon server.js",
     "server:ci": "node server.js",
-    "client": "cd src/client && yarn serve",
+    "client": "cd client && yarn serve",
     "dev": "concurrently --names \"server,client\" \"npm run server --silent\" \"npm run client --silent\""
   },
   "keywords": [],
