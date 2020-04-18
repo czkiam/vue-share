@@ -14,3 +14,16 @@ npm run serve
 ```
 npm run build
 ```
+
+### deployment to google cloud platform 
+vue
+```
+gsutil rsync -d -r gs://webapp-vue-share ./
+
+gcloud app deploy app.yaml
+```
+
+graphql api
+```
+gcloud app deploy api.yaml
+```

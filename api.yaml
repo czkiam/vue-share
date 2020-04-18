@@ -1,0 +1,9 @@
+# see https://cloud.google.com/appengine/docs/flexible/nodejs/configuring-your-app-with-app-yaml for more info
+
+runtime: nodejs10
+service: api
+env: standard
+resources:
+  cpu: 1
+  memory_gb: 0.5
+  disk_size_gb: 10 

@@ -1,4 +1,5 @@
-const { ApolloServer, AuthenticationError } = require("apollo-server");
+const express = require("express");
+const { ApolloServer, AuthenticationError } = require("apollo-server-express");
 const typeDefs = require("./schema");
 const resolvers = require("./resolvers");
 const mongoose = require("mongoose");
@@ -41,6 +42,8 @@ const getUser = async (token) => {
 const server = new ApolloServer({
   typeDefs,
   resolvers,
+  introspection: true,
+  playground: true,
   formatError: (error) => ({
     name: error.name,
     message: error.message.replace("Context creation failed:", ""),
@@ -51,7 +54,46 @@ const server = new ApolloServer({
   },
 });
 
-//start server and listen to port 4000 (default graphql port)
-server.listen({ port: process.env.PORT || 4000 }).then(({ url }) => {
-  console.log(`Server listening ready at ${url}`);
+const app = express();
+server.applyMiddleware({ app });
+
+// app.use(function (req, res, next) {
+//   res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
+//   res.header(
+//     "Access-Control-Allow-Headers",
+//     "Origin, X-Requested-With, Content-Type, Accept"
+//   );
+//   next();
+// });
+
+app.get("/", function (req, res, next) {
+  res.json("Hello World, Express GraphQL");
 });
+
+app.get("/configs", function (req, res, next) {
+  const envConfig = {
+    MONGO_URI: process.env.MONGO_URI,
+    SECRET: process.env.SECRET,
+    port: process.env.PORT,
+  };
+  res.json(envConfig);
+});
+
+app.get("/apolloServer", function (req, res, next) {
+  res.json(server);
+});
+
+//start server and listen to port 4000 (default graphql port)
+app.listen({ port: process.env.PORT || 4000 }, () => {
+  //console.dir(app);
+  //console.dir(server);
+  console.log(
+    `Server ready at http://localhost:${process.env.PORT || 4000}${
+      server.graphqlPath
+    }`
+  );
+});
+
+// server.listen({ port: process.env.PORT || 4000 }).then(({ url }) => {
+//   console.log(`Server listening ready at ${url}`);
+// });
