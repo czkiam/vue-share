@@ -10,7 +10,7 @@
   "dependencies": {
     "apollo-boost": "^0.4.7",
     "graphql": "^15.0.0",
-    "moment": "^2.22.2",
+    "moment": "^2.29.4",
     "vue": "^2.5.17",
     "vue-apollo": "^3.0.3",
     "vue-router": "^3.0.1",
